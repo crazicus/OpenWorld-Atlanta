@@ -8,7 +8,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <!--<link rel="stylesheet" href="css/main.css" media="screen"/>-->
+        <link rel="stylesheet" href="css/index.css" media="screen"/>
 
         <style>
             html, body {
@@ -29,8 +29,15 @@
 					<li class="nav-item active">
 						<a class="nav-link" href="">Home <span class="sr-only">(current)</span></a>
 					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="./map.html">Explore</a>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="./map.html" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Explore
+						</a>
+						<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+							<a class="dropdown-item" href="./map.html">City Information</a>
+							<a class="dropdown-item" href="#">Coming Soon</a>
+							<a class="dropdown-item" href="#">Coming Soon</a>
+						</div>
 					</li>
 				</ul>
 			</div>
