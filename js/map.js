@@ -108,11 +108,10 @@ function getLeaflet() {
                 {color: 'black',
 				interactive: false,
 				smoothFactor: 3.0,
-                opacity: 0,
+                opacity: 1,
                 weight: 3,
                 fillOpacity: 0,
                 onEachFeature: function(feature, layer) {
-					layer.setText(feature.properties.ROAD_NAME, {repeat: false});
                     layer.on({
                         click: function populate() {
 							var roadData = "Road Name";
