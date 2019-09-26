@@ -1,5 +1,5 @@
 function getLeaflet() {
-    var map = L.map('map').setView([33.749037, -84.388157], 17);
+    var map = L.map('map').setView([33.749038, -84.388466], 17);
 
 	/*
         var OpenStreetMap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
@@ -37,21 +37,19 @@ function getLeaflet() {
         "weight": 5,
         "opacity": 1
         };
-        var greenIcon = L.icon({
+        var manhole = L.icon({
             iconUrl: './assets/manhole.png',
 
-            iconSize:     [30, 30], // size of the icon
-            iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
+            iconSize:     [20, 20], // size of the icon
+            iconAnchor:   [10, 10], // point of the icon which will correspond to marker's location
         });
-        
-       // L.marker([33.749037, -84.388157], {icon: greenIcon}).addTo(map);
         
         
         var manholes = L.layerGroup([]);
 		var markerClusters = L.markerClusterGroup();
         
 		var manholedata = $.getJSON('http://atlanta.urbanspatialhistory.org/js/features.json', function(manholedata) {
-			console.log(JSON.stringify(manholedata));
+			//console.log(JSON.stringify(manholedata));
 			for (var i = 0; i < manholedata.features.length; i++) {
 				var popupContent = '<b>Utility Hole</b>'; 
 				if (manholedata.features[i].properties.name_st != "") {
@@ -59,52 +57,25 @@ function getLeaflet() {
 				} if (manholedata.features[i].properties.man_elev != "") {
 					popupContent += `<br />Elevation: ${manholedata.features[i].properties.man_elev}ft`;
 				}
-				var m = L.marker(new L.latLng(manholedata.features[i].geometry.coordinates[1], manholedata.features[i].geometry.coordinates[0]), {icon: greenIcon}).bindPopup(popupContent);
+				var m = L.marker(new L.latLng(manholedata.features[i].geometry.coordinates[1], manholedata.features[i].geometry.coordinates[0]), {icon: manhole}).bindTooltip(popupContent, {offset: new L.Point(-15, 0), direction: 'left'});
 				m.on('mouseover', function() {
-					this.openPopup();
+					this.openTooltip();
 				});
 				m.on('mouseout', function() {
-					this.closePopup();
+					this.closeTooltip();
 				});
-				console.log(manholedata.features[i].id);
+				//console.log(manholedata.features[i].id);
 				markerClusters.addLayer(m);
 			}
 
 			markerClusters.addTo(manholes);
-			//map.addLayer(markerClusters);
 		});
-		//var manholedata = readJSON('http://atlanta.urbanspatialhistory.org/js/features.json');
-
-		// Old function to populate each marker individually
-        /* 
-        fetch("https://geoserver.ecds.emory.edu/ATLMaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ATLMaps:ATL28_Utility_Holes&maxFeatures=10000&outputFormat=application%2Fjson")
-		.then(function(response) {
-            return response.json();
-        })
-        .then(function(myJson) {
-            geojsonLayer = new L.GeoJSON(myJson, 
-                                {marker: 'greenIcon',
-                                opacity: 1,
-                                weight: 2,
-                                onEachFeature: function(feature, layer) {
-									var popupContent = '<b>Utility Hole</b>';
-									if (feature.properties.name_st != "") {
-										popupContent += '<br />Located on ' + feature.properties.name_st;
-									} if (feature.properties.man_elev != "") {
-										popupContent += `<br />Elevation: ${feature.properties.man_elev}ft`;
-									}
-									layer.bindPopup(popupContent);
-								}
-            })
-            .addTo(manholes);
-        }); 
-        //manholes.addTo(map); */
         
         var boundary = L.layerGroup([]);
         
-        fetch("https://geoserver.ecds.emory.edu/ATLMaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ATLMaps:Atlanta%20City%20Limits&outputFormat=application%2Fjson", {
-			//cache: force-cache
-		}).then(function(response) {
+        fetch("https://geoserver.ecds.emory.edu/ATLMaps/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ATLMaps:Atlanta%20City%20Limits&outputFormat=application%2Fjson")
+		//fetch("https://geoserver.ecds.emory.edu/OpenWorldAtlanta/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=OpenWorldAtlanta:Atlanta1928_RoadSystem&outputFormat=application%2Fjson")
+		.then(function(response) {
             return response.json();
         })
         .then(function(myJson) {
@@ -128,17 +99,20 @@ function getLeaflet() {
         
         var roads = L.layerGroup([]);
         
-        fetch("https://geoserver.ecds.emory.edu/OpenWorldAtlanta/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=OpenWorldAtlanta:Atlanta1928_RoadSystem&outputFormat=application%2Fjson", {
-			//cache: force-cache
-		}).then(function(response) {
+        //fetch("https://geoserver.ecds.emory.edu/OpenWorldAtlanta/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=OpenWorldAtlanta:Atlanta1928_RoadSystem&outputFormat=application%2Fjson")
+		fetch("https://geoserver.ecds.emory.edu/OpenWorldAtlanta/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=OpenWorldAtlanta:Atlanta1928_RoadSystem&BBOX=-84.41714544,33.73327062,-84.31633406,33.78337253&outputFormat=application%2Fjson")
+		.then(function(response) {
             return response.json();
         }).then(function(myJson) {
             geojsonLayer = new L.GeoJSON(myJson, 
                 {color: 'black',
-                opacity: 1,
+				interactive: false,
+				smoothFactor: 3.0,
+                opacity: 0,
                 weight: 3,
                 fillOpacity: 0,
                 onEachFeature: function(feature, layer) {
+					layer.setText(feature.properties.ROAD_NAME, {repeat: false});
                     layer.on({
                         click: function populate() {
 							var roadData = "Road Name";
@@ -164,34 +138,23 @@ function getLeaflet() {
             .addTo(roads);
         });
         
-        
         var layergroups = {
             "Utility Holes": manholes,
             "City Bounds": boundary,
             "Roads": roads
         };
         
-
-        
-        
-        
-        // Create the control and add it to the map;
-        var control = L.control.layers();
-		control.addOverlay(manholes, "Utility Holes");
-		control.addOverlay(boundary, "City Bounds");
-		control.addOverlay(roads, "Roads");
+        var control = L.control.layers(null, layergroups, { position: 'topright', collapsed: false, sortLayers: true });
         control.addTo(map);
 
-        var htmlObject = control.getContainer();
-        var a = document.getElementById('overlays')
-        function setParent(el, newParent){
-            newParent.appendChild(el);
-        }
-        setParent(htmlObject, a);
+		$(".leaflet-control-layers-overlays").prepend("<label>Available layers</label>");
 
 		map.on("zoomend", function() {
-			console.log(map.getZoom());
+			var zoom = map.getZoom();
+			console.log(zoom);
 		});
+
+	L.control.scale().addTo(map);
          
     return map;
 }
